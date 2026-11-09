@@ -30,6 +30,16 @@ The repository includes a pinned Gradle Wrapper using Gradle 9.2.1. No separatel
 
 Gradle's normal dependency and build caches are reused between builds.
 
+## Updating project sources
+
+On Windows, run `update-sources.bat` from the project root to refresh the local source tree from the repository's `main` branch. Git is not required; the updater downloads the GitHub ZIP archive directly.
+
+The updater verifies that both the local folder and downloaded archive identify this project through `mod_id=cruor_sable_compat`. Before replacing a changed source file, it saves the previous copy under `.cruor-sable-compat-backups/<timestamp>/`. Files removed from a later repository version are removed only when they were listed in a manifest from an earlier successful update, and they are backed up first.
+
+The updater preserves `.git/`, `.tools/`, `.gradle/`, `.idea/`, `.vscode/`, `build/`, Minecraft instance data folders such as `mods/`, `config/`, `saves/`, and the local updater backup folder. The manifest and backups are excluded from Git.
+
+**Note:** updating replaces changed tracked project files with the current version on GitHub. Keep local source edits in mind; their previous versions are backed up automatically.
+
 ## Manual build
 
 With JDK 21 installed:
