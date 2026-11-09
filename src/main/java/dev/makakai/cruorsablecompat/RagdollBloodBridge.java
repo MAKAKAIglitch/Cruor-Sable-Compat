@@ -42,11 +42,7 @@ public final class RagdollBloodBridge {
         }
 
         Object identity = invokeNoArgs(part, "ragdollIdentity");
-        UUID sourceId = asUuid(invokeNoArgs(identity, "source"));
-        if (sourceId == null) {
-            sourceId = asUuid(invokeNoArgs(identity, "owner"));
-        }
-
+        UUID sourceId = resolveSourceId(identity);
         long now = level.getGameTime();
         if (!BleedingTracker.isRecentlyDamaged(sourceId, now)) {
             return;
@@ -90,6 +86,36 @@ public final class RagdollBloodBridge {
         if (LAST_PARTICLE_TICK.size() > 2048) {
             LAST_PARTICLE_TICK.entrySet().removeIf(entry ->
                     now - entry.getValue() > 40L);
+        }
+    }
+
+    private static UUID resolveSourceId(Object identity) {
+        if (identity == null) {
+            return null;
+        }
+
+        UUID source = asUuid(invokeNoArgs(identity, "source"));
+        if (source != null) {
+            return source;
+        }
+
+        // Player ragdolls use an internal session UUID as their owner. The
+        // actual player UUID is stored in the session tag, not in owner().
+        Object session = invokeNoArgs(identity, "session");
+        if (session == null) {
+            return null;
+        }
+
+        try {
+            Method hasUuid = session.getClass().getMethod("hasUUID", String.class);
+            if (!Boolean.TRUE.equals(hasUuid.invoke(session, "playerId"))) {
+                return null;
+            }
+
+            Method getUuid = session.getClass().getMethod("getUUID", String.class);
+            return asUuid(getUuid.invoke(session, "playerId"));
+        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            return null;
         }
     }
 
