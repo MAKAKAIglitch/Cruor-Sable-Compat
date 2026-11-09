@@ -32,7 +32,7 @@ The current prototype:
 | Component | Development target |
 |---|---|
 | Minecraft | 1.21.1 |
-| Loader | NeoForge 21.1.256 or newer 21.1.x |
+| Loader | NeoForge 21.1.228 or newer 21.1.x |
 | Java bytecode | Java 21 |
 | Sable: Ragdolls | 0.7.2 |
 | Cruor | 0.1.5-beta for 1.21.1 NeoForge |
