@@ -78,7 +78,7 @@ function Get-ModId {
     return (($line -split "=", 2)[1]).Trim()
 }
 
-function Expand-VerifiedArchive {
+function Expand-SafeArchive {
     param(
         [Parameter(Mandatory = $true)][string] $Archive,
         [Parameter(Mandatory = $true)][string] $Destination
@@ -148,7 +148,7 @@ try {
     }
 
     Write-Host "[2/4] Extracting and validating the archive..." -ForegroundColor Cyan
-    Expand-VerifiedArchive -Archive $ZipPath -Destination $StageRoot
+    Expand-SafeArchive -Archive $ZipPath -Destination $StageRoot
 
     $required = @("build.bat", "gradlew", "settings.gradle", "build.gradle", "gradle.properties")
     foreach ($file in $required) {
@@ -177,7 +177,7 @@ try {
         })
     }
 
-    $stamp = Get-Date -Format "yyyyMMdd-HHmmss"
+    $stamp = (Get-Date -Format "yyyyMMdd-HHmmss") + "-" + [guid]::NewGuid().ToString("N").Substring(0, 8)
     $backupDirectory = Join-Path $BackupRoot $stamp
     $changed = 0
     $unchanged = 0
@@ -190,6 +190,10 @@ try {
         $target = Get-SafeDestination -Root $ProjectRoot -RelativePath $relative
         $targetParent = Split-Path -Parent $target
         [IO.Directory]::CreateDirectory($targetParent) | Out-Null
+
+        if ((Test-Path -LiteralPath $target) -and !(Test-Path -LiteralPath $target -PathType Leaf)) {
+            throw "A directory or non-file object blocks the expected source file path: $relative"
+        }
 
         if (Test-Path -LiteralPath $target -PathType Leaf) {
             if ((Get-Sha256 -Path $source) -eq (Get-Sha256 -Path $target)) {
