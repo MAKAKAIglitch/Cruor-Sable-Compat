@@ -1,33 +1,38 @@
 modLoader="javafml"
-loaderVersion="${neoforge_loader_version_range}"
-license="${mod_license}"
-issueTrackerURL="https://github.com/MAKAKAIglitch/Cruor-Sable-Compat/issues"
+loaderVersion="[4,)"
+license="\${mod_license}"
+issueTrackerURL="\${mod_issue_tracker}"
 
 [[mods]]
-modId="${mod_id}"
-version="${mod_version}"
-displayName="${mod_name}"
-authors="MAKAKAIglitch"
-description='''${mod_description}'''
+modId="\${mod_id}"
+version="\${mod_version}"
+displayName="\${mod_name}"
+authors="\${mod_authors}"
+displayURL="\${mod_homepage}"
+credits="\${mod_credits}"
+description='''
+Unofficial compatibility addon connecting Sable ragdoll physics to bleeding visuals.
+Cruor and Sable Ragdolls must be installed separately. This project is not affiliated
+with or endorsed by either upstream project.
+'''
 
-[[dependencies.${mod_id}]]
+[[dependencies.\${mod_id}]]
 modId="neoforge"
 type="required"
-versionRange="[${neoforge_version},)"
+versionRange="\${neo_version_range}"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies.\${mod_id}]]
 modId="minecraft"
 type="required"
-versionRange="${minecraft_version_range}"
+versionRange="\${minecraft_version_range}"
 ordering="NONE"
 side="BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies.\${mod_id}]]
 modId="sable_player_ragdoll"
 type="required"
 versionRange="[0.7.2,)"
 ordering="AFTER"
 side="BOTH"
-
