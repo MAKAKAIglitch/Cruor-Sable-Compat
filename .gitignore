@@ -1,0 +1,25 @@
+### Gradle
+.gradle/
+build/
+out/
+
+### Project-local builder tools
+.tools/
+*.previous-*
+
+### Minecraft development
+run/
+runs/
+logs/
+crash-reports/
+
+### IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.run/
+.classpath
+.project
+.settings/
