@@ -18,7 +18,7 @@ Cruor remains the property of its author. No Cruor source, compiled classes, tex
 - Project: [Sable: Ragdolls on CurseForge](https://www.curseforge.com/minecraft/mc-mods/sable-ragdolls)
 - Author: **leonardoinc22** (GitHub: [Leo-T22](https://github.com/Leo-T22))
 - Source repository: [sable-player-ragdoll](https://github.com/Leo-T22/sable-player-ragdoll)
-- Development target: 0.7.2, Minecraft 1.21.1
+- Development target: 0.7.2, Minecraft 1.21.1; upstream build baseline: NeoForge 21.1.228
 - CurseForge development file ID: `8295399`
 
 The upstream source repository declares its code as **All Rights Reserved** and says not to redistribute it. This project does not copy or package Sable source code. It uses runtime mixin targets and reflective access to the methods needed for compatibility. Sable remains a separately installed dependency.
