@@ -25,19 +25,37 @@ function Write-Warn([string] $Message) {
 }
 
 function Invoke-NativeVersion([string] $Executable, [string[]] $Arguments) {
-    $PreviousPreference = $ErrorActionPreference
+    # Capture native stdout/stderr through .NET so PowerShell 5.1 does not
+    # render java -version stderr as a misleading NativeCommandError.
+    $StartInfo = New-Object System.Diagnostics.ProcessStartInfo
+    $StartInfo.FileName = $Executable
+    $StartInfo.Arguments = [string]::Join(" ", $Arguments)
+    $StartInfo.UseShellExecute = $false
+    $StartInfo.CreateNoWindow = $true
+    $StartInfo.RedirectStandardOutput = $true
+    $StartInfo.RedirectStandardError = $true
+
+    $Process = New-Object System.Diagnostics.Process
+    $Process.StartInfo = $StartInfo
     try {
-        # java -version writes to stderr; PowerShell 5.1 otherwise treats that
-        # output as an error record when ErrorActionPreference is Stop.
-        $ErrorActionPreference = "Continue"
-        $Output = & $Executable @Arguments 2>&1
-        if ($LASTEXITCODE -ne 0) {
+        if (!$Process.Start()) {
             return $null
         }
-        return ($Output | Out-String).Trim()
+
+        $StdoutTask = $Process.StandardOutput.ReadToEndAsync()
+        $StderrTask = $Process.StandardError.ReadToEndAsync()
+        $Process.WaitForExit()
+
+        $Output = $StdoutTask.GetAwaiter().GetResult() +
+            [Environment]::NewLine +
+            $StderrTask.GetAwaiter().GetResult()
+        if ($Process.ExitCode -ne 0) {
+            return $null
+        }
+        return $Output.Trim()
     }
     finally {
-        $ErrorActionPreference = $PreviousPreference
+        $Process.Dispose()
     }
 }
 
