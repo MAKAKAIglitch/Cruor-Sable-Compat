@@ -44,13 +44,19 @@ neoForge {
     }
 }
 
+// Keep optional development mods out of the published dependency metadata.
+// This is the standard runtime-only setup used by the NeoForge 1.21.1 MDK.
+configurations {
+    runtimeClasspath.extendsFrom localRuntime
+}
+
 dependencies {
     // NeoForge supplies Mixin at runtime; this is compile-time API only.
     compileOnly "org.spongepowered:mixin:${project.mixin_version}"
 
     // Development run classpath only. Neither upstream mod is embedded in our JAR.
-    modRuntimeOnly "curse.maven:sable-ragdolls-1572492:${project.sable_curse_file}"
-    modRuntimeOnly "curse.maven:cruor-1729277:${project.cruor_curse_file}"
+    localRuntime "curse.maven:sable-ragdolls-1572492:${project.sable_curse_file}"
+    localRuntime "curse.maven:cruor-1729277:${project.cruor_curse_file}"
 }
 
 tasks.named('processResources', ProcessResources).configure {
