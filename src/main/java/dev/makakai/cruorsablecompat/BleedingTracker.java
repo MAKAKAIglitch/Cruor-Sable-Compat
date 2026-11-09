@@ -27,7 +27,7 @@ public final class BleedingTracker {
 
         // Post is fired after health is modified. Armor, shields and absorption
         // may reduce the hit to zero actual health damage.
-        if (event.getHealthDamage() <= 0.0F) {
+        if (event.getNewDamage() <= 0.0F) {
             return;
         }
 
