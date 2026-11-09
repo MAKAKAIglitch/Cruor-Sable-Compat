@@ -1,0 +1,13 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "dev.makakai.cruorsablecompat.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "PlayerRagdollPartMixin",
+    "MobRagdollPartMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
