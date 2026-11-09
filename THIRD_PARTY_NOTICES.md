@@ -32,6 +32,14 @@ The project-local automated builder follows the JDK detection, project-local Tem
 
 The builder scripts in this repository are adapted for this mod's Java 21 / NeoForge build. They do not include Fiximizer's or Rusify's mod implementation, native backend, or unrelated project assets.
 
+## Source updater
+
+The Windows source updater (`update-sources.bat` and `scripts/update-sources.ps1`) is adapted from the source updater in:
+
+- [Rusify](https://github.com/MAKAKAIglitch/Rusify) — Copyright © 2026 MAKAKAIglitch, MIT License.
+
+The updater has been adapted to download this repository's own `main` branch and to use project-specific manifest and backup paths. It does not download or install Rusify or any of its mod content. The original MIT license is compatible with this repository's MIT license.
+
 ## Gradle Wrapper
 
 The Gradle Wrapper scripts and wrapper JAR are generated/distributed by the Gradle project and are licensed under the **Apache License, Version 2.0**. The standard Gradle copyright and license headers are retained in the wrapper scripts. See [Gradle's license](https://github.com/gradle/gradle/blob/master/LICENSE).
