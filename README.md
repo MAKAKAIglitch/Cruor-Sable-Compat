@@ -60,7 +60,15 @@ You can pass Gradle tasks through the builder:
 .\build.bat runClient
 ```
 
-### Linux
+### Update project sources from GitHub
+
+On Windows, run `update-sources.bat` from the project folder to synchronize the local source files with the latest `main` branch. The updater downloads the repository ZIP directly, without requiring Git.
+
+Changed source files are backed up under `.cruor-sable-compat-backups/`. Local Gradle caches, build output, and Minecraft user data directories are preserved. This updates the project source tree, so local source edits may be replaced; the previous versions are backed up before replacement.
+
+See [BUILDING.md](BUILDING.md) for the updater's validation and backup behavior.
+
+## Linux
 
 ```sh
 chmod +x ./build.sh
