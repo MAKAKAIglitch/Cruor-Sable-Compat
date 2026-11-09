@@ -25,8 +25,9 @@ public final class BleedingTracker {
             return;
         }
 
-        // Ignore hits which did not reduce health (for example, fully absorbed hits).
-        if (!entity.isDeadOrDying() && entity.getHealth() >= entity.getMaxHealth()) {
+        // Post is fired after health is modified. Armor, shields and absorption
+        // may reduce the hit to zero actual health damage.
+        if (event.getHealthDamage() <= 0.0F) {
             return;
         }
 
