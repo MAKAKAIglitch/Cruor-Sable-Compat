@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1920" height="1080" viewBox="0 0 1920 1080" role="img" aria-labelledby="title desc">
+<title id="title">Cruor × Sable Compat</title><desc id="desc">Original dark industrial horror cover art for an unofficial Minecraft compatibility addon.</desc>
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#06080e"/><stop offset=".55" stop-color="#0c0d16"/><stop offset="1" stop-color="#170d16"/></linearGradient>
+  <radialGradient id="glow"><stop stop-color="#7d1727" stop-opacity=".42"/><stop offset=".65" stop-color="#43121f" stop-opacity=".2"/><stop offset="1" stop-color="#170d16" stop-opacity="0"/></radialGradient>
+  <linearGradient id="metal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#62646a"/><stop offset=".5" stop-color="#292f39"/><stop offset="1" stop-color="#111722"/></linearGradient>
+  <linearGradient id="bone" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b5b1a4"/><stop offset="1" stop-color="#66645f"/></linearGradient>
+  <filter id="soft"><feGaussianBlur stdDeviation="25"/></filter>
+  <filter id="redglow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <pattern id="grid" width="96" height="96" patternUnits="userSpaceOnUse"><path d="M96 0H0V96" fill="none" stroke="#8f2838" stroke-opacity=".10" stroke-width="1"/></pattern>
+</defs>
+<rect width="1920" height="1080" fill="url(#bg)"/><rect x="790" y="75" width="1120" height="850" fill="url(#glow)"/>
+<ellipse cx="1450" cy="540" rx="540" ry="470" fill="#701a2c" opacity=".13" filter="url(#soft)"/>
+<rect width="1920" height="1080" fill="url(#grid)" opacity=".38"/>
+<path d="M0 900H1920M0 990H1920" stroke="#a22a3b" stroke-opacity=".13"/>
+<path d="M1020 100V790M1240 100V790M1460 100V790M1680 100V790" stroke="#9b2637" stroke-opacity=".08" stroke-width="2"/>
+<g fill="none" stroke="#777b83" stroke-width="5" opacity=".72"><path d="M1397 -15V178M1433 -15V158"/><path d="M1387 28h20m-20 32h20m-20 32h20m-20 32h20m-20 32h20M1423 14h20m-20 32h20m-20 32h20m-20 32h20" stroke-width="3"/></g>
+<g fill="none" stroke="#9d2839" stroke-width="2" opacity=".62"><circle cx="1460" cy="535" r="360"/><circle cx="1460" cy="535" r="318" stroke-dasharray="12 17"/><circle cx="1460" cy="535" r="258" stroke-opacity=".45"/></g>
+<g font-family="Arial, Helvetica, sans-serif">
+ <text x="140" y="292" font-size="27" font-weight="700" letter-spacing="2" fill="#c94a58">AN UNOFFICIAL COMPATIBILITY ADDON</text>
+ <path d="M140 315H740" stroke="#a92a3b" stroke-width="3"/>
+ <text x="140" y="440" font-size="84" font-weight="800" letter-spacing="-2" fill="#e5e2d8">CRUOR</text>
+ <text x="455" y="440" font-size="79" font-weight="700" fill="#b52f42">×</text>
+ <text x="530" y="440" font-size="84" font-weight="800" letter-spacing="-2" fill="#e5e2d8">SABLE</text>
+ <text x="137" y="585" font-size="142" font-weight="900" letter-spacing="-4" fill="#e8e5dc">COMPAT</text>
+ <text x="144" y="657" font-size="26" letter-spacing="1.3" fill="#bfc1c1">PHYSICS-DRIVEN RAGDOLLS  /  BLEEDING EFFECTS</text>
+ <rect x="140" y="708" width="365" height="58" rx="4" fill="none" stroke="#9d2a3a" stroke-width="2"/>
+ <text x="160" y="746" font-size="22" font-weight="700" letter-spacing="1" fill="#d4d0c5">MINECRAFT  •  NEOFORGE 1.21.1</text>
+ <path d="M166 838V941" stroke="#49515b" stroke-width="2"/>
+ <path d="M166 838h16M166 888h16M166 941h16" stroke="#a72b3d" stroke-width="7"/>
+ <text x="216" y="875" font-size="24" fill="#92969b" letter-spacing=".8">TWO MODS. ONE PHYSICS-TO-BLOOD BRIDGE.</text>
+</g>
+<g stroke="#080b11" stroke-width="18" stroke-linejoin="round" stroke-linecap="round">
+ <path d="M1384 244L1409 199L1475 185L1535 215L1551 273L1521 324L1454 339L1396 309Z" fill="url(#bone)"/>
+ <path d="M1423 264l30 -8m35 7l28 -7m-72 44l29 8 25 -14" fill="none" stroke="#25242a" stroke-width="9"/>
+ <path d="M1465 268l-12 24 17 5" fill="none" stroke="#7e1b2d" stroke-width="5"/>
+ <path d="M1466 336v55" fill="none" stroke="url(#metal)" stroke-width="31"/>
+ <path d="M1355 397L1428 363L1505 369L1576 412L1593 530L1547 603L1381 603L1328 531Z" fill="url(#metal)"/>
+ <path d="M1380 597L1549 597L1584 663L1518 704L1397 687L1347 646Z" fill="#272d37"/>
+ <path d="M1355 425L1285 465L1242 561" fill="none" stroke="url(#metal)" stroke-width="58"/>
+ <path d="M1242 561L1195 665" fill="none" stroke="url(#metal)" stroke-width="53"/>
+ <path d="M1195 665l-24 43 34 14 45 -47" fill="url(#bone)" stroke-width="12"/>
+ <path d="M1564 424L1634 466L1671 566" fill="none" stroke="url(#metal)" stroke-width="58"/>
+ <path d="M1671 566L1700 673" fill="none" stroke="url(#metal)" stroke-width="53"/>
+ <path d="M1700 673l9 44 40 -4 16 -39" fill="url(#bone)" stroke-width="12"/>
+ <path d="M1412 668L1377 786L1346 891" fill="none" stroke="url(#metal)" stroke-width="65"/>
+ <path d="M1346 891L1327 1003L1265 1028L1371 1033L1395 1011L1408 891" fill="url(#metal)" stroke-width="15"/>
+ <path d="M1514 673L1551 790L1585 891" fill="none" stroke="url(#metal)" stroke-width="65"/>
+ <path d="M1585 891L1613 1002L1678 1026L1570 1033L1546 1010L1522 891" fill="url(#metal)" stroke-width="15"/>
+</g>
+<g fill="#111722" stroke="#a72d40" stroke-width="7"><circle cx="1394" cy="455" r="32"/><circle cx="1576" cy="455" r="32"/><circle cx="1248" cy="561" r="28"/><circle cx="1671" cy="566" r="28"/><circle cx="1411" cy="670" r="29"/><circle cx="1518" cy="675" r="29"/><circle cx="1377" cy="788" r="29"/><circle cx="1552" cy="790" r="29"/><circle cx="1347" cy="892" r="25"/><circle cx="1585" cy="892" r="25"/></g>
+<g fill="#555b65" stroke="#0a0d13" stroke-width="8"><circle cx="1394" cy="455" r="12"/><circle cx="1576" cy="455" r="12"/><circle cx="1248" cy="561" r="10"/><circle cx="1671" cy="566" r="10"/><circle cx="1411" cy="670" r="11"/><circle cx="1518" cy="675" r="11"/></g>
+<path d="M1490 401L1468 455L1497 488L1465 540L1501 572" fill="none" stroke="#d21f3d" stroke-width="10" filter="url(#redglow)"/>
+<path d="M1436 500l-30 31 23 22m99 -115 25 40 -14 28" fill="none" stroke="#a9243a" stroke-width="5"/>
+<g>
+<circle cx="1473" cy="903" r="2" fill="#d04a59" opacity=".72"/><circle cx="1734" cy="116" r="3" fill="#8e1c30" opacity=".28"/><circle cx="1107" cy="176" r="5" fill="#bd263d" opacity=".28"/><circle cx="1786" cy="410" r="2" fill="#8e1c30" opacity=".58"/><circle cx="1135" cy="921" r="7" fill="#6e727b" opacity=".58"/><circle cx="1465" cy="416" r="5" fill="#d04a59" opacity=".28"/><circle cx="1193" cy="958" r="7" fill="#6e727b" opacity=".58"/><circle cx="1561" cy="571" r="7" fill="#6e727b" opacity=".58"/><circle cx="1248" cy="664" r="7" fill="#6e727b" opacity=".58"/><circle cx="1120" cy="427" r="2" fill="#6e727b" opacity=".72"/><circle cx="1063" cy="226" r="2" fill="#bd263d" opacity=".72"/><circle cx="1602" cy="866" r="3" fill="#6e727b" opacity=".72"/><circle cx="1425" cy="127" r="7" fill="#8e1c30" opacity=".72"/><circle cx="1568" cy="450" r="7" fill="#6e727b" opacity=".42"/><circle cx="1703" cy="707" r="2" fill="#d04a59" opacity=".28"/><circle cx="1634" cy="297" r="7" fill="#bd263d" opacity=".72"/><circle cx="1361" cy="542" r="3" fill="#8e1c30" opacity=".58"/><circle cx="1096" cy="934" r="3" fill="#8e1c30" opacity=".58"/><circle cx="1288" cy="738" r="2" fill="#d04a59" opacity=".28"/><circle cx="1190" cy="225" r="4" fill="#6e727b" opacity=".42"/><circle cx="1604" cy="492" r="7" fill="#bd263d" opacity=".42"/><circle cx="1558" cy="320" r="5" fill="#6e727b" opacity=".42"/><circle cx="1732" cy="613" r="2" fill="#6e727b" opacity=".72"/><circle cx="1803" cy="542" r="4" fill="#d04a59" opacity=".58"/><circle cx="1606" cy="727" r="4" fill="#6e727b" opacity=".72"/><circle cx="1647" cy="144" r="5" fill="#bd263d" opacity=".58"/><circle cx="1608" cy="360" r="4" fill="#8e1c30" opacity=".42"/><circle cx="1576" cy="834" r="4" fill="#bd263d" opacity=".58"/><circle cx="1122" cy="553" r="5" fill="#d04a59" opacity=".42"/><circle cx="1549" cy="274" r="3" fill="#bd263d" opacity=".58"/><circle cx="1713" cy="378" r="7" fill="#6e727b" opacity=".42"/><circle cx="1406" cy="690" r="4" fill="#d04a59" opacity=".58"/><circle cx="1557" cy="363" r="5" fill="#8e1c30" opacity=".72"/><circle cx="1465" cy="591" r="7" fill="#d04a59" opacity=".72"/><circle cx="1513" cy="793" r="7" fill="#bd263d" opacity=".72"/><circle cx="1751" cy="298" r="3" fill="#6e727b" opacity=".28"/><circle cx="1496" cy="669" r="3" fill="#8e1c30" opacity=".58"/><circle cx="1115" cy="544" r="4" fill="#8e1c30" opacity=".72"/><circle cx="1783" cy="299" r="4" fill="#6e727b" opacity=".42"/><circle cx="1701" cy="765" r="4" fill="#6e727b" opacity=".28"/><circle cx="1515" cy="120" r="7" fill="#d04a59" opacity=".72"/><circle cx="1783" cy="617" r="7" fill="#6e727b" opacity=".42"/><circle cx="1729" cy="131" r="7" fill="#bd263d" opacity=".58"/><circle cx="1216" cy="377" r="4" fill="#8e1c30" opacity=".72"/><circle cx="1191" cy="829" r="7" fill="#d04a59" opacity=".72"/><circle cx="1601" cy="124" r="5" fill="#bd263d" opacity=".28"/><circle cx="1799" cy="416" r="5" fill="#bd263d" opacity=".42"/><circle cx="1194" cy="861" r="3" fill="#8e1c30" opacity=".42"/><circle cx="1051" cy="333" r="3" fill="#bd263d" opacity=".58"/><circle cx="1679" cy="891" r="7" fill="#8e1c30" opacity=".58"/><circle cx="1667" cy="464" r="4" fill="#6e727b" opacity=".72"/><circle cx="1106" cy="573" r="7" fill="#d04a59" opacity=".28"/><circle cx="1095" cy="542" r="4" fill="#8e1c30" opacity=".28"/><circle cx="1349" cy="950" r="4" fill="#8e1c30" opacity=".72"/><circle cx="1439" cy="733" r="5" fill="#d04a59" opacity=".72"/><circle cx="1291" cy="538" r="5" fill="#d04a59" opacity=".58"/><circle cx="1561" cy="513" r="7" fill="#d04a59" opacity=".58"/><circle cx="1598" cy="795" r="7" fill="#bd263d" opacity=".42"/><circle cx="1536" cy="315" r="3" fill="#8e1c30" opacity=".42"/><circle cx="1577" cy="317" r="2" fill="#bd263d" opacity=".42"/><circle cx="1773" cy="295" r="4" fill="#6e727b" opacity=".58"/><circle cx="1427" cy="481" r="4" fill="#6e727b" opacity=".72"/>
+</g>
+<g fill="none" stroke="#aa263a" stroke-width="2" opacity=".45"><path d="M1045 770l95 -30 62 48 75 -25 80 46"/><path d="M1110 300l65 38 -20 47 83 27"/><path d="M1660 240l85 37 -13 60 73 36"/></g>
+<text x="1775" y="1030" text-anchor="end" font-family="Arial, Helvetica, sans-serif" font-size="15" letter-spacing="3" fill="#6d737d">ORIGINAL FAN-MADE ARTWORK  •  NOT AN OFFICIAL MOD LOGO</text>
+</svg>
