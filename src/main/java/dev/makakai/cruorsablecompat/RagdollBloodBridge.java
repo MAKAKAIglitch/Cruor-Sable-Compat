@@ -27,6 +27,13 @@ public final class RagdollBloodBridge {
     private static final ConcurrentMap<String, Long> LAST_PARTICLE_TICK =
             new ConcurrentHashMap<>();
 
+    // Sable clears identity.source when a limb is severed. Retain the original
+    // source UUID by limb UUID so a detached part can keep bleeding briefly.
+    private static final ConcurrentMap<UUID, SourceRecord> SOURCE_BY_LIMB =
+            new ConcurrentHashMap<>();
+
+    private static final long SOURCE_RETENTION_TICKS = 1200L;
+
     private RagdollBloodBridge() {
     }
 
@@ -42,8 +49,24 @@ public final class RagdollBloodBridge {
         }
 
         Object identity = invokeNoArgs(part, "ragdollIdentity");
-        UUID sourceId = resolveSourceId(identity);
         long now = level.getGameTime();
+        UUID limbId = asUuid(invokeNoArgs(identity, "limb"));
+        UUID liveSourceId = resolveSourceId(identity);
+
+        if (limbId != null && liveSourceId != null) {
+            SOURCE_BY_LIMB.put(limbId, new SourceRecord(liveSourceId, now));
+        }
+
+        UUID sourceId = liveSourceId;
+        if (sourceId == null && limbId != null) {
+            SourceRecord cached = SOURCE_BY_LIMB.get(limbId);
+            if (cached != null && now - cached.lastSeenTick() <= SOURCE_RETENTION_TICKS) {
+                sourceId = cached.sourceId();
+            } else if (cached != null) {
+                SOURCE_BY_LIMB.remove(limbId, cached);
+            }
+        }
+
         if (!BleedingTracker.isRecentlyDamaged(sourceId, now)) {
             return;
         }
@@ -86,6 +109,10 @@ public final class RagdollBloodBridge {
         if (LAST_PARTICLE_TICK.size() > 2048) {
             LAST_PARTICLE_TICK.entrySet().removeIf(entry ->
                     now - entry.getValue() > 40L);
+        }
+        if (SOURCE_BY_LIMB.size() > 4096) {
+            SOURCE_BY_LIMB.entrySet().removeIf(entry ->
+                    now - entry.getValue().lastSeenTick() > SOURCE_RETENTION_TICKS);
         }
     }
 
@@ -143,5 +170,8 @@ public final class RagdollBloodBridge {
 
     private static UUID asUuid(Object value) {
         return value instanceof UUID uuid ? uuid : null;
+    }
+
+    private record SourceRecord(UUID sourceId, long lastSeenTick) {
     }
 }
