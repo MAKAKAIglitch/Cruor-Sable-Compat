@@ -27,9 +27,10 @@ public final class RagdollBloodBridge {
     private static final ConcurrentMap<String, Long> LAST_PARTICLE_TICK =
             new ConcurrentHashMap<>();
 
-    // Sable clears identity.source when a limb is severed. Retain the original
-    // source UUID by limb UUID so a detached part can keep bleeding briefly.
-    private static final ConcurrentMap<UUID, SourceRecord> SOURCE_BY_LIMB =
+    // Keep a short-lived source association for detached parts. The key is
+    // the physical Sable sublevel UUID, which exists in Sable 0.7.2 as well
+    // as in later versions with persistent RagdollBlockIdentity data.
+    private static final ConcurrentMap<UUID, SourceRecord> SOURCE_BY_PART =
             new ConcurrentHashMap<>();
 
     private static final long SOURCE_RETENTION_TICKS = 1200L;
@@ -50,20 +51,21 @@ public final class RagdollBloodBridge {
 
         Object identity = invokeNoArgs(part, "ragdollIdentity");
         long now = level.getGameTime();
-        UUID limbId = asUuid(invokeNoArgs(identity, "limb"));
-        UUID liveSourceId = resolveSourceId(identity);
+        UUID partId = asUuid(invokeNoArgs(subLevel, "getUniqueId"));
+        UUID liveSourceId = resolveSourceId(part, identity);
 
-        if (limbId != null && liveSourceId != null) {
-            SOURCE_BY_LIMB.put(limbId, new SourceRecord(liveSourceId, now));
+        if (partId != null && liveSourceId != null) {
+            SOURCE_BY_PART.put(partId, new SourceRecord(liveSourceId, now));
         }
 
         UUID sourceId = liveSourceId;
-        if (sourceId == null && limbId != null) {
-            SourceRecord cached = SOURCE_BY_LIMB.get(limbId);
+        if (sourceId == null && partId != null) {
+            SourceRecord cached = SOURCE_BY_PART.get(partId);
             if (cached != null && now - cached.lastSeenTick() <= SOURCE_RETENTION_TICKS) {
                 sourceId = cached.sourceId();
+                SOURCE_BY_PART.put(partId, new SourceRecord(sourceId, now));
             } else if (cached != null) {
-                SOURCE_BY_LIMB.remove(limbId, cached);
+                SOURCE_BY_PART.remove(partId, cached);
             }
         }
 
@@ -82,7 +84,7 @@ public final class RagdollBloodBridge {
             return;
         }
 
-        UUID subLevelId = asUuid(invokeNoArgs(subLevel, "getUniqueId"));
+        UUID subLevelId = partId;
         String partKey = (subLevelId == null ? "unknown" : subLevelId.toString())
                 + ":" + part.getBlockPos().asLong();
 
@@ -110,24 +112,35 @@ public final class RagdollBloodBridge {
             LAST_PARTICLE_TICK.entrySet().removeIf(entry ->
                     now - entry.getValue() > 40L);
         }
-        if (SOURCE_BY_LIMB.size() > 4096) {
-            SOURCE_BY_LIMB.entrySet().removeIf(entry ->
+        if (SOURCE_BY_PART.size() > 4096) {
+            SOURCE_BY_PART.entrySet().removeIf(entry ->
                     now - entry.getValue().lastSeenTick() > SOURCE_RETENTION_TICKS);
         }
     }
 
-    private static UUID resolveSourceId(Object identity) {
-        if (identity == null) {
-            return null;
+    private static UUID resolveSourceId(BlockEntity part, Object identity) {
+        // Sable 0.7.2 player parts retain the original GameProfile. This is
+        // the stable source UUID in the exact release targeted by this addon.
+        Object profile = invokeNoArgs(part, "skinProfile");
+        UUID profileId = asUuid(invokeNoArgs(profile, "getId"));
+        if (profileId != null) {
+            return profileId;
         }
 
+        // Sable 0.7.2 mob parts expose sourceEntityId() directly.
+        UUID mobSourceId = asUuid(invokeNoArgs(part, "sourceEntityId"));
+        if (mobSourceId != null) {
+            return mobSourceId;
+        }
+
+        // Newer Sable builds store source/session ownership on each part.
         UUID source = asUuid(invokeNoArgs(identity, "source"));
         if (source != null) {
             return source;
         }
 
-        // Player ragdolls use an internal session UUID as their owner. The
-        // actual player UUID is stored in the session tag, not in owner().
+        // For newer player ragdolls, the source player UUID is stored inside
+        // the session compound, while owner() identifies the ragdoll session.
         Object session = invokeNoArgs(identity, "session");
         if (session == null) {
             return null;
