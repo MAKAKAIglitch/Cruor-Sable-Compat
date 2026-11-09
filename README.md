@@ -101,6 +101,8 @@ The prototype keeps work on the server physics side and uses several small safeg
 
 These are code-path reductions, not a claim of a measured FPS or TPS improvement. Runtime profiling and gameplay tests are still required.
 
+The build workflow checks NeoForge 21.1.228 (the Sable 0.7.2 build baseline) and 21.1.265 on both Linux and Windows.
+
 ## Licensing and attribution
 
 Original compatibility source code is MIT-licensed. The MIT license does not relicense the upstream mods.
