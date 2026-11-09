@@ -23,3 +23,7 @@ crash-reports/
 .classpath
 .project
 .settings/
+
+### Source updater local state
+.cruor-sable-compat-update-manifest.txt
+.cruor-sable-compat-backups/
