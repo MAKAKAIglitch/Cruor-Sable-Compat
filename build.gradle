@@ -48,8 +48,8 @@ dependencies {
     compileOnly "org.spongepowered:mixin:${mixin_version}"
 
     // Development runtime only. These jars are not shaded into our output.
-    runtimeOnly "curse.maven:sable-ragdolls-1572492:${sable_curse_file}"
-    runtimeOnly "curse.maven:cruor-1729277:${cruor_curse_file}"
+    modRuntimeOnly "curse.maven:sable-ragdolls-1572492:${sable_curse_file}"
+    modRuntimeOnly "curse.maven:cruor-1729277:${cruor_curse_file}"
 }
 
 tasks.withType(JavaCompile).configureEach {
