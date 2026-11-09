@@ -1,5 +1,9 @@
 # Building Cruor Sable Compat
 
+## Supported build matrix
+
+The declared minimum is **NeoForge 21.1.228**. This matches the NeoForge version used by Sable Ragdolls 0.7.2 to compile its 1.21.1 release. The CI matrix builds against 21.1.228 and 21.1.265 on Linux and Windows.
+
 ## One-click build
 
 - Windows: run `build.bat`.
