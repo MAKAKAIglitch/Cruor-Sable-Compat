@@ -11,13 +11,13 @@ permissions:
 
 jobs:
   build:
-    name: Build NeoForge ${{ matrix.neo-version }} on ${{ matrix.os }}
+    name: Build NeoForge ${{ matrix.neo_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest]
-        neo-version: ['21.1.228', '21.1.265']
+        neo_version: ['21.1.228', '21.1.265']
     steps:
       - name: Check out source
         uses: actions/checkout@v6
@@ -37,7 +37,7 @@ jobs:
 
       - name: Build with the Linux one-click builder
         if: runner.os == 'Linux'
-        run: ./build.sh build --no-daemon -Pneo_version=${{ matrix.neo-version }}
+        run: ./build.sh build --no-daemon -Pneo_version=${{ matrix.neo_version }}
 
       - name: Validate Windows builder syntax
         if: runner.os == 'Windows'
@@ -54,12 +54,12 @@ jobs:
       - name: Build with the Windows one-click builder
         if: runner.os == 'Windows'
         shell: powershell
-        run: .\build.bat build --no-daemon -Pneo_version=${{ matrix.neo-version }}
+        run: .\build.bat build --no-daemon -Pneo_version=${{ matrix.neo_version }}
 
       - name: Upload distributable mod JAR
         uses: actions/upload-artifact@v7
         with:
-          name: cruor-sable-compat-${{ matrix.neo-version }}-${{ matrix.os }}
+          name: cruor-sable-compat-${{ matrix.neo_version }}-${{ matrix.os }}
           path: build/libs/cruor_sable_compat-*.jar
           if-no-files-found: error
           retention-days: 14
