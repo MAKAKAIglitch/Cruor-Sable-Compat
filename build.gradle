@@ -136,6 +136,23 @@ tasks.register('prefetchBuildDependencies') {
     }
 }
 
+/*
+ * Every normal build preloads the same dependency set first. The task order
+ * rules keep compilation/resource processing behind the prefetch step, so
+ * cached artifacts are ready before Gradle's build tasks consume them.
+ */
+tasks.named('build') {
+    dependsOn tasks.named('prefetchBuildDependencies')
+}
+
+tasks.withType(JavaCompile).configureEach {
+    mustRunAfter tasks.named('prefetchBuildDependencies')
+}
+
+tasks.named('processResources') {
+    mustRunAfter tasks.named('prefetchBuildDependencies')
+}
+
 idea {
     module {
         downloadSources = true

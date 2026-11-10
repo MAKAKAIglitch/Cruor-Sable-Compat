@@ -40,9 +40,13 @@ Run `preload-dependencies.bat` from the project root. The task:
 
 The default local NeoForge version is **21.1.256**, matching Fiximizer's current build configuration. The mod continues to declare compatibility from **21.1.228** up to (but excluding) 21.2.
 
-After the preloading task succeeds, run `build-offline.bat`. It invokes Gradle with `--offline`, so Gradle must use already cached artifacts and will not attempt Maven network access. If an artifact was not cached, Gradle reports its exact missing coordinate.
+Every normal `build.bat` build also runs `prefetchBuildDependencies` before compilation. The prefetch task is wired into Gradle's `build` task, so it also runs when `gradlew.bat build` is invoked directly.
 
-The preload command disables Gradle's configuration cache for this task because the local ModDevGradle `createMinecraftArtifacts` task reported a configuration-cache serialization problem in the supplied build log. Gradle's normal dependency and build caches remain enabled.
+The Windows builder first tries normal online resolution. If Gradle reports an unavailable remote resource (connection timeout, DNS failure, TLS/HTTP resource error, or unresolved remote artifact), it automatically retries the same operation with `--offline`. The offline fallback can only use files already present in the Gradle cache; if something was never downloaded, Gradle prints the missing coordinate and the build stops with that diagnostic.
+
+After a successful preload, `build-offline.bat` forces an offline build. It never contacts Maven. The preloader itself also tries the local cache if its online attempt hits a remote-resource failure.
+
+The preload and build commands disable Gradle's configuration cache because the local ModDevGradle `createMinecraftArtifacts` task reported a configuration-cache serialization problem in the supplied build log. Gradle's normal dependency and build caches remain enabled.
 
 Preloading is not a manual copy of a single POM: Gradle needs the POM/module metadata, actual JARs, transitive dependencies, and Minecraft/NeoForge generated artifacts. Gradle stores and reuses those files in its own cache.
 

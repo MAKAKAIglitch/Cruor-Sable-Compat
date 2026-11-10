@@ -26,6 +26,36 @@ function Write-Warn([string] $Message) {
     Write-Host "[WARN] $Message" -ForegroundColor Yellow
 }
 
+function Invoke-GradleCommand([string] $Wrapper, [string[]] $Arguments) {
+    $CapturedOutput = New-Object 'System.Collections.Generic.List[string]'
+    $PreviousErrorActionPreference = $ErrorActionPreference
+
+    try {
+        # Gradle writes useful diagnostics to stderr. Merge both streams while
+        # preserving the native process exit code and showing output live.
+        $ErrorActionPreference = "Continue"
+        & $Wrapper @Arguments 2>&1 | ForEach-Object {
+            $Line = $_.ToString()
+            [void]$CapturedOutput.Add($Line)
+            Write-Host $Line
+        }
+        $ExitCode = $LASTEXITCODE
+    }
+    finally {
+        $ErrorActionPreference = $PreviousErrorActionPreference
+    }
+
+    return [PSCustomObject]@{
+        ExitCode = $ExitCode
+        Output = [string]::Join([Environment]::NewLine, $CapturedOutput.ToArray())
+    }
+}
+
+function Test-RemoteDependencyFailure([string] $Output) {
+    $Pattern = '(?i)(Could not (GET|HEAD)|Could not get resource|Could not resolve all artifacts|Could not resolve [^\r\n]+|Could not find [^\r\n]+|Connection timed out|Connect timed out|Read timed out|timed out|UnknownHostException|Unknown host|Name or service not known|No route to host|Connection reset|Connection refused|SocketException|SSLHandshakeException|PKIX path building failed|handshake failure|HTTP response code:\s*[45]\d{2}|status code\s*[45]\d{2})'
+    return $Output -match $Pattern
+}
+
 function Invoke-NativeVersion([string] $Executable, [string[]] $Arguments) {
     # Capture native stdout/stderr through .NET so PowerShell 5.1 does not
     # render java -version stderr as a misleading NativeCommandError.
@@ -258,11 +288,11 @@ try {
     }
 
     if ($Preload) {
-        $GradleArgs = @("prefetchBuildDependencies", "--no-configuration-cache")
+        $GradleArgs = @("prefetchBuildDependencies")
         Write-Info "Preloading Minecraft, NeoForge, compile, runtime and test dependencies..."
     }
     elseif ($Offline) {
-        $GradleArgs = @("build", "--offline", "--no-configuration-cache")
+        $GradleArgs = @("build", "--offline")
         Write-Info "Building strictly from the local Gradle cache (offline mode)..."
     }
     elseif (!$GradleArgs -or $GradleArgs.Count -eq 0) {
@@ -273,23 +303,43 @@ try {
         $GradleArgs = @($GradleArgs) + @("--build-cache")
     }
 
-    # ModDevGradle's createMinecraftArtifacts task can fail while Gradle tries
-    # to serialize its configuration-cache state. Keep the builder predictable;
-    # users can explicitly opt back in by passing --configuration-cache.
+    # ModDevGradle's createMinecraftArtifacts task reported a configuration-cache
+    # serialization problem on this project. Keep local builds predictable.
     if (($GradleArgs -notcontains "--no-configuration-cache") -and
         ($GradleArgs -notcontains "--configuration-cache")) {
         $GradleArgs = @($GradleArgs) + @("--no-configuration-cache")
     }
 
+    $Wrapper = Join-Path $ProjectRoot "gradlew.bat"
+    $UseOffline = $Offline -or ($GradleArgs -contains "--offline")
+    $GradleHome = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE ".gradle" }
+
     Write-Info "Starting the pinned Gradle Wrapper..."
-    Write-Info "Gradle User Home: $(if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE '.gradle' })"
-    & (Join-Path $ProjectRoot "gradlew.bat") @GradleArgs
-    if ($LASTEXITCODE -ne 0) {
-        throw "Gradle returned exit code $LASTEXITCODE."
+    Write-Info "Gradle User Home: $GradleHome"
+    if (!$Preload -and !$UseOffline) {
+        Write-Info "The normal build will prefetch dependencies before compilation."
+        Write-Info "If a remote repository is unreachable, the builder will retry from the existing Gradle cache."
+    }
+
+    $Result = Invoke-GradleCommand -Wrapper $Wrapper -Arguments $GradleArgs
+
+    if ($Result.ExitCode -ne 0 -and !$UseOffline -and (Test-RemoteDependencyFailure $Result.Output)) {
+        Write-Warn "A remote dependency/resource could not be reached. Retrying the same operation in Gradle offline mode..."
+        $FallbackArgs = @($GradleArgs) + @("--offline")
+        $Result = Invoke-GradleCommand -Wrapper $Wrapper -Arguments $FallbackArgs
+
+        if ($Result.ExitCode -eq 0) {
+            Write-Ok "The operation succeeded using the existing local Gradle cache."
+        }
+        else {
+            throw "Online resolution failed and the offline fallback also failed. The output above identifies dependencies missing from the local cache."
+        }
+    }
+    elseif ($Result.ExitCode -ne 0) {
+        throw "Gradle returned exit code $($Result.ExitCode). The failure did not match a remote dependency error, so no offline retry was attempted."
     }
 
     if ($Preload) {
-        $GradleHome = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE ".gradle" }
         Write-Host ""
         Write-Host " ==========================================" -ForegroundColor Green
         Write-Host " DEPENDENCIES PRELOADED" -ForegroundColor Green
