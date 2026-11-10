@@ -1,9 +1,9 @@
 [CmdletBinding()]
 param(
+    [Parameter(Position = 0, ValueFromRemainingArguments = $true)]
+    [string[]] $GradleArgs,
     [switch] $Preload,
-    [switch] $Offline,
-    [Parameter(ValueFromRemainingArguments = $true)]
-    [string[]] $GradleArgs
+    [switch] $Offline
 )
 
 $ErrorActionPreference = "Stop"
