@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.joml.Vector3f;
@@ -85,6 +86,11 @@ public final class RagdollBloodBridge {
             new ConcurrentHashMap<>();
 
     private static final AtomicLong LAST_CLEANUP_TICK = new AtomicLong(Long.MIN_VALUE);
+    private static final ConcurrentMap<String, Boolean> REPORTED_DIAGNOSTICS =
+            new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, Boolean> REPORTED_PART_CLASSES =
+            new ConcurrentHashMap<>();
+    private static final AtomicBoolean FIRST_PARTICLE_EMITTED = new AtomicBoolean();
 
     private RagdollBloodBridge() {
     }
@@ -100,11 +106,28 @@ public final class RagdollBloodBridge {
             return;
         }
 
+        String partClassName = part.getClass().getName();
+        if (REPORTED_PART_CLASSES.putIfAbsent(partClassName, Boolean.TRUE) == null) {
+            CruorSableCompat.LOGGER.info(
+                    "[Cruor Sable Compat] Sable ragdoll physics hook reached for part class {}.",
+                    partClassName
+            );
+        }
+
         long now = level.getGameTime();
         UUID partId = asUuid(invokeNoArgs(subLevel, "getUniqueId"));
         Object identity = invokeNoArgs(part, "ragdollIdentity");
         UUID liveSourceId = resolveSourceId(part, identity);
         UUID sourceId = resolveSourceIdFromCache(partId, liveSourceId, now);
+
+        if (sourceId == null) {
+            warnOnce(
+                    "source-id:" + partClassName,
+                    "Could not resolve a source entity UUID for Sable part class {}. Known player, mob and ragdoll identity accessors were checked; this can indicate an API mismatch or an identity that is not initialized yet.",
+                    partClassName
+            );
+            return;
+        }
 
         if (!BleedingTracker.isRecentlyDamaged(sourceId, now)) {
             return;
@@ -112,6 +135,11 @@ public final class RagdollBloodBridge {
 
         Object logicalPose = invokeNoArgs(subLevel, "logicalPose");
         if (logicalPose == null) {
+            warnOnce(
+                    "logical-pose:" + subLevel.getClass().getName(),
+                    "Sable sublevel class {} returned no logicalPose(); the ragdoll particle position cannot be calculated.",
+                    subLevel.getClass().getName()
+            );
             return;
         }
 
@@ -141,6 +169,12 @@ public final class RagdollBloodBridge {
                 0.012D,
                 0.008D
         );
+
+        if (FIRST_PARTICLE_EMITTED.compareAndSet(false, true)) {
+            CruorSableCompat.LOGGER.info(
+                    "[Cruor Sable Compat] First compatibility blood particle emitted successfully."
+            );
+        }
 
         cleanupCachesOccasionally(now);
     }
@@ -223,15 +257,37 @@ public final class RagdollBloodBridge {
     }
 
     private static Vec3 transformPosition(Object pose, Vec3 localPosition) {
-        Optional<Method> optional = VEC3_TRANSFORM_METHOD.get(pose.getClass());
+        Class<?> poseClass = pose.getClass();
+        Optional<Method> optional = VEC3_TRANSFORM_METHOD.get(poseClass);
         if (optional.isEmpty()) {
+            warnOnce(
+                    "pose-method:" + poseClass.getName(),
+                    "Sable pose class {} does not expose transformPosition(Vec3); the ragdoll particle position cannot be calculated.",
+                    poseClass.getName()
+            );
             return null;
         }
 
         try {
             Object result = optional.get().invoke(pose, localPosition);
-            return result instanceof Vec3 vec ? vec : null;
-        } catch (ReflectiveOperationException | RuntimeException ignored) {
+            if (result instanceof Vec3 vec) {
+                return vec;
+            }
+
+            warnOnce(
+                    "pose-result:" + poseClass.getName(),
+                    "Sable pose class {} returned {} from transformPosition(Vec3), expected Vec3.",
+                    poseClass.getName(),
+                    result == null ? "null" : result.getClass().getName()
+            );
+            return null;
+        } catch (ReflectiveOperationException | RuntimeException exception) {
+            warnFailureOnce(
+                    "pose-invoke:" + poseClass.getName(),
+                    "Could not invoke transformPosition(Vec3) on {}.",
+                    poseClass,
+                    exception
+            );
             return null;
         }
     }
@@ -286,6 +342,27 @@ public final class RagdollBloodBridge {
 
         SOURCE_BY_PART.entrySet().removeIf(entry ->
                 isExpired(entry.getValue().lastSeenTick(), now, SOURCE_RETENTION_TICKS));
+    }
+
+    private static void warnOnce(String key, String message, Object... arguments) {
+        if (REPORTED_DIAGNOSTICS.putIfAbsent(key, Boolean.TRUE) == null) {
+            CruorSableCompat.LOGGER.warn("[Cruor Sable Compat] " + message, arguments);
+        }
+    }
+
+    private static void warnFailureOnce(
+            String key,
+            String message,
+            Class<?> targetClass,
+            Throwable exception
+    ) {
+        if (REPORTED_DIAGNOSTICS.putIfAbsent(key, Boolean.TRUE) == null) {
+            CruorSableCompat.LOGGER.warn(
+                    "[Cruor Sable Compat] " + message,
+                    targetClass.getName(),
+                    exception
+            );
+        }
     }
 
     private static boolean isExpired(long previousTick, long now, long retentionTicks) {

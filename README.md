@@ -97,6 +97,10 @@ See [BUILDING.md](BUILDING.md) for details.
 
 The distributable mod JAR is written to `build/libs/`. Sable and Cruor are development runtime dependencies only; they are not shaded or copied into the compatibility JAR.
 
+## Diagnostics and bug reports
+
+The mod writes runtime diagnostics to the normal Minecraft log. See [DIAGNOSTICS.md](DIAGNOSTICS.md) for what is recorded and how to send `latest.log` and crash reports when reporting a problem.
+
 ## Performance notes
 
 The prototype keeps work on the server physics side and uses several small safeguards:

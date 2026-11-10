@@ -3,6 +3,7 @@ package dev.makakai.cruorsablecompat;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +21,8 @@ public final class BleedingTracker {
             new ConcurrentHashMap<>();
     private static final AtomicLong LAST_CLEANUP_TICK =
             new AtomicLong(Long.MIN_VALUE);
+    private static final AtomicBoolean FIRST_DAMAGE_EVENT_REPORTED =
+            new AtomicBoolean();
 
     private BleedingTracker() {
     }
@@ -35,6 +38,13 @@ public final class BleedingTracker {
         // which remove no health do not start the bleeding window.
         if (event.getNewDamage() <= 0.0F) {
             return;
+        }
+
+        if (FIRST_DAMAGE_EVENT_REPORTED.compareAndSet(false, true)) {
+            CruorSableCompat.LOGGER.info(
+                    "[Cruor Sable Compat] First positive server-side damage event received (entity class: {}). Bleeding tracking is active.",
+                    entity.getClass().getName()
+            );
         }
 
         long now = level.getGameTime();
