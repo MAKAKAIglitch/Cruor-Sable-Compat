@@ -288,8 +288,8 @@ try {
     }
 
     if ($Preload) {
-        $GradleArgs = @("prefetchBuildDependencies")
-        Write-Info "Preloading Minecraft, NeoForge, compile, runtime and test dependencies..."
+        $GradleArgs = @("prefetchAllDependencies")
+        Write-Info "Preloading required build dependencies and optional Sable/Cruor runtime dependencies..."
     }
     elseif ($Offline) {
         $GradleArgs = @("build", "--offline")

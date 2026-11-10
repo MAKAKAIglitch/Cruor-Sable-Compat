@@ -62,9 +62,9 @@ You can pass Gradle tasks through the builder:
 
 ### Preload dependencies and fallback builds (Windows)
 
-Every normal `build.bat` build now runs the dependency prefetch task before compilation. It prepares Minecraft/NeoForge and resolves compile, runtime, and test dependencies into Gradle's persistent cache.
+Every normal `build.bat` build now prefetches the required Minecraft/NeoForge and compile dependencies before compilation. Optional Sable/Cruor runtime mods are kept separate so a CurseMaven outage does not block creation of the distributable JAR. They are preloaded for development game launches and by the full preloader.
 
-If a Maven/resource request fails, the builder automatically retries the operation with Gradle `--offline`. This fallback succeeds only when the needed artifacts are already in the cache. Use `preload-dependencies.bat` to warm the cache in advance, and `build-offline.bat` to force an offline build.
+If a Maven/resource request fails, the builder automatically retries the operation with Gradle `--offline`. This fallback succeeds only when the needed artifacts are already in the cache. Use `preload-dependencies.bat` to warm the build and development-runtime caches in advance, and `build-offline.bat` to force an offline JAR build.
 
 The default NeoForge build version is 21.1.256 to match the version already used by the Fiximizer project; the declared compatibility range still starts at 21.1.228.
 

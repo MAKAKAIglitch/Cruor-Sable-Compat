@@ -34,13 +34,14 @@ Gradle's normal dependency and build caches are reused between builds.
 
 Run `preload-dependencies.bat` from the project root. The task:
 
-- prepares the Minecraft/NeoForge development artifacts through ModDevGradle's `createMinecraftArtifacts` task;
-- resolves the NeoForge runtime, compile, runtime, and test dependency configurations;
-- places the downloaded artifacts in Gradle's normal persistent cache (normally `%USERPROFILE%\.gradle\caches`), shared with other Gradle projects on this Windows account.
+- prepares Minecraft/NeoForge development artifacts through ModDevGradle's `createMinecraftArtifacts` task;
+- resolves the required NeoForge and compile dependency configurations;
+- separately resolves the optional Sable/Cruor development runtime dependencies;
+- places downloaded artifacts in Gradle's normal persistent cache (normally `%USERPROFILE%\.gradle\caches`), shared with other Gradle projects on this Windows account.
 
 The default local NeoForge version is **21.1.256**, matching Fiximizer's current build configuration. The mod continues to declare compatibility from **21.1.228** up to (but excluding) 21.2.
 
-Every normal `build.bat` build also runs `prefetchBuildDependencies` before compilation. The prefetch task is wired into Gradle's `build` task, so it also runs when `gradlew.bat build` is invoked directly.
+Every normal `build.bat` build also runs `prefetchBuildDependencies` before compilation. It only resolves dependencies required to create the distributable JAR. Optional Sable/Cruor runtime mods are handled by `prefetchRuntimeDependencies` before `runClient` / `runServer`, so an unavailable CurseMaven runtime file does not block a normal JAR build. The prefetch task is wired into Gradle's `build` task, so it also runs when `gradlew.bat build` is invoked directly.
 
 The Windows builder first tries normal online resolution. If Gradle reports an unavailable remote resource (connection timeout, DNS failure, TLS/HTTP resource error, or unresolved remote artifact), it automatically retries the same operation with `--offline`. The offline fallback can only use files already present in the Gradle cache; if something was never downloaded, Gradle prints the missing coordinate and the build stops with that diagnostic.
 

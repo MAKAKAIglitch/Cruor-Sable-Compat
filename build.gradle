@@ -106,34 +106,52 @@ jar {
  * The Java configurations cover project compile/runtime and test dependencies,
  * including the localRuntime CurseForge mods inherited by runtimeClasspath.
  */
+def resolvePrefetchConfigurations = { List<String> configurationNames ->
+    configurationNames.each { configurationName ->
+        def configuration = configurations.findByName(configurationName)
+        if (configuration == null || !configuration.canBeResolved) {
+            logger.lifecycle("[PREFETCH] Skipping unavailable configuration: ${configurationName}")
+        } else {
+            logger.lifecycle("[PREFETCH] Resolving ${configurationName}...")
+            def resolvedFiles = configuration.incoming.files.files
+            logger.lifecycle("[PREFETCH] ${configurationName}: ${resolvedFiles.size()} file(s) ready.")
+        }
+    }
+}
+
 tasks.register('prefetchBuildDependencies') {
     group = 'build setup'
-    description = 'Downloads and caches Minecraft, NeoForge, and project dependencies for offline builds.'
+    description = 'Downloads and caches Minecraft, NeoForge, and compile dependencies required to build the mod.'
 
     dependsOn tasks.named('createMinecraftArtifacts')
 
     doLast {
-        def configurationNames = [
+        resolvePrefetchConfigurations([
                 'neoFormRuntimeDependenciesNeoForgeClasses',
-                'compileClasspath',
-                'runtimeClasspath',
-                'testCompileClasspath',
-                'testRuntimeClasspath'
-        ]
-
-        configurationNames.each { configurationName ->
-            def configuration = configurations.findByName(configurationName)
-            if (configuration == null || !configuration.canBeResolved) {
-                logger.lifecycle("[PREFETCH] Skipping unavailable configuration: ${configurationName}")
-            } else {
-                logger.lifecycle("[PREFETCH] Resolving ${configurationName}...")
-                def resolvedFiles = configuration.incoming.files.files
-                logger.lifecycle("[PREFETCH] ${configurationName}: ${resolvedFiles.size()} file(s) ready.")
-            }
-        }
-
-        logger.lifecycle('[PREFETCH] Dependency preloading completed. Gradle will reuse its cache for future builds.')
+                'compileClasspath'
+        ])
+        logger.lifecycle('[PREFETCH] Required build dependencies are ready in the Gradle cache.')
     }
+}
+
+tasks.register('prefetchRuntimeDependencies') {
+    group = 'build setup'
+    description = 'Downloads and caches optional Sable/Cruor development runtime dependencies.'
+
+    dependsOn tasks.named('prefetchBuildDependencies')
+
+    doLast {
+        resolvePrefetchConfigurations(['runtimeClasspath'])
+        logger.lifecycle('[PREFETCH] Development runtime dependencies are ready in the Gradle cache.')
+    }
+}
+
+tasks.register('prefetchAllDependencies') {
+    group = 'build setup'
+    description = 'Downloads and caches build and development runtime dependencies.'
+
+    dependsOn tasks.named('prefetchBuildDependencies')
+    dependsOn tasks.named('prefetchRuntimeDependencies')
 }
 
 /*
@@ -151,6 +169,12 @@ tasks.withType(JavaCompile).configureEach {
 
 tasks.named('processResources') {
     mustRunAfter tasks.named('prefetchBuildDependencies')
+}
+
+// Runtime mods are not needed to package the compatibility JAR. Preload them
+// before development game launches instead of making every JAR build depend on CurseMaven.
+tasks.matching { it.name in ['runClient', 'runServer'] }.configureEach {
+    dependsOn tasks.named('prefetchRuntimeDependencies')
 }
 
 idea {
