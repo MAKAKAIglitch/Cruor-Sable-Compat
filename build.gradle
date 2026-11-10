@@ -98,6 +98,44 @@ jar {
     }
 }
 
+
+/*
+ * Resolve the artifacts needed for a later offline build.
+ *
+ * createMinecraftArtifacts prepares the Minecraft/NeoForge development artifacts.
+ * The Java configurations cover project compile/runtime and test dependencies,
+ * including the localRuntime CurseForge mods inherited by runtimeClasspath.
+ */
+tasks.register('prefetchBuildDependencies') {
+    group = 'build setup'
+    description = 'Downloads and caches Minecraft, NeoForge, and project dependencies for offline builds.'
+
+    dependsOn tasks.named('createMinecraftArtifacts')
+
+    doLast {
+        def configurationNames = [
+                'neoFormRuntimeDependenciesNeoForgeClasses',
+                'compileClasspath',
+                'runtimeClasspath',
+                'testCompileClasspath',
+                'testRuntimeClasspath'
+        ]
+
+        configurationNames.each { configurationName ->
+            def configuration = configurations.findByName(configurationName)
+            if (configuration == null || !configuration.canBeResolved) {
+                logger.lifecycle("[PREFETCH] Skipping unavailable configuration: ${configurationName}")
+            } else {
+                logger.lifecycle("[PREFETCH] Resolving ${configurationName}...")
+                def resolvedFiles = configuration.incoming.files.files
+                logger.lifecycle("[PREFETCH] ${configurationName}: ${resolvedFiles.size()} file(s) ready.")
+            }
+        }
+
+        logger.lifecycle('[PREFETCH] Dependency preloading completed. Gradle will reuse its cache for future builds.')
+    }
+}
+
 idea {
     module {
         downloadSources = true

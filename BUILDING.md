@@ -30,6 +30,22 @@ The repository includes a pinned Gradle Wrapper using Gradle 9.2.1. No separatel
 
 Gradle's normal dependency and build caches are reused between builds.
 
+## Preload dependencies for offline builds (Windows)
+
+Run `preload-dependencies.bat` from the project root. The task:
+
+- prepares the Minecraft/NeoForge development artifacts through ModDevGradle's `createMinecraftArtifacts` task;
+- resolves the NeoForge runtime, compile, runtime, and test dependency configurations;
+- places the downloaded artifacts in Gradle's normal persistent cache (normally `%USERPROFILE%\.gradle\caches`), shared with other Gradle projects on this Windows account.
+
+The default local NeoForge version is **21.1.256**, matching Fiximizer's current build configuration. The mod continues to declare compatibility from **21.1.228** up to (but excluding) 21.2.
+
+After the preloading task succeeds, run `build-offline.bat`. It invokes Gradle with `--offline`, so Gradle must use already cached artifacts and will not attempt Maven network access. If an artifact was not cached, Gradle reports its exact missing coordinate.
+
+The preload command disables Gradle's configuration cache for this task because the local ModDevGradle `createMinecraftArtifacts` task reported a configuration-cache serialization problem in the supplied build log. Gradle's normal dependency and build caches remain enabled.
+
+Preloading is not a manual copy of a single POM: Gradle needs the POM/module metadata, actual JARs, transitive dependencies, and Minecraft/NeoForge generated artifacts. Gradle stores and reuses those files in its own cache.
+
 ## Updating project sources
 
 On Windows, run `update-sources.bat` from the project root to refresh the local source tree from the repository's `main` branch. Git is not required; the updater downloads the GitHub ZIP archive directly.

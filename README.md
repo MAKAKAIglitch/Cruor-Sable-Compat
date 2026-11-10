@@ -60,6 +60,12 @@ You can pass Gradle tasks through the builder:
 .\build.bat runClient
 ```
 
+### Preload dependencies for offline builds (Windows)
+
+Run `preload-dependencies.bat` once while the required repositories are reachable, or when the required artifacts already exist in the shared Gradle cache. It prepares Minecraft/NeoForge artifacts and resolves compile, runtime, and test dependencies into Gradle's persistent cache.
+
+After successful preloading, use `build-offline.bat` to build strictly from the local cache without contacting Maven repositories. The default NeoForge build version is 21.1.256 to match the version already used by the Fiximizer project; the declared compatibility range still starts at 21.1.228.
+
 ### Update project sources from GitHub
 
 On Windows, run `update-sources.bat` from the project folder to synchronize the local source files with the latest `main` branch. The updater downloads the repository ZIP directly, without requiring Git.

@@ -1,5 +1,7 @@
 [CmdletBinding()]
 param(
+    [switch] $Preload,
+    [switch] $Offline,
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]] $GradleArgs
 )
@@ -251,17 +253,50 @@ try {
     Write-Ok "Using JDK 21: $($Jdk.Home)"
     Write-Host $Jdk.Version
 
-    if (!$GradleArgs -or $GradleArgs.Count -eq 0) {
-        $GradleArgs = @("build", "--build-cache", "--parallel")
+    if ($Preload -and $Offline) {
+        throw "Use either -Preload or -Offline, not both."
     }
-    elseif ($GradleArgs -notcontains "--build-cache") {
+
+    if ($Preload) {
+        $GradleArgs = @("prefetchBuildDependencies", "--no-configuration-cache")
+        Write-Info "Preloading Minecraft, NeoForge, compile, runtime and test dependencies..."
+    }
+    elseif ($Offline) {
+        $GradleArgs = @("build", "--offline", "--no-configuration-cache")
+        Write-Info "Building strictly from the local Gradle cache (offline mode)..."
+    }
+    elseif (!$GradleArgs -or $GradleArgs.Count -eq 0) {
+        $GradleArgs = @("build", "--parallel")
+    }
+
+    if ($GradleArgs -notcontains "--build-cache") {
         $GradleArgs = @($GradleArgs) + @("--build-cache")
     }
 
+    # ModDevGradle's createMinecraftArtifacts task can fail while Gradle tries
+    # to serialize its configuration-cache state. Keep the builder predictable;
+    # users can explicitly opt back in by passing --configuration-cache.
+    if (($GradleArgs -notcontains "--no-configuration-cache") -and
+        ($GradleArgs -notcontains "--configuration-cache")) {
+        $GradleArgs = @($GradleArgs) + @("--no-configuration-cache")
+    }
+
     Write-Info "Starting the pinned Gradle Wrapper..."
+    Write-Info "Gradle User Home: $(if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE '.gradle' })"
     & (Join-Path $ProjectRoot "gradlew.bat") @GradleArgs
     if ($LASTEXITCODE -ne 0) {
         throw "Gradle returned exit code $LASTEXITCODE."
+    }
+
+    if ($Preload) {
+        $GradleHome = if ($env:GRADLE_USER_HOME) { $env:GRADLE_USER_HOME } else { Join-Path $env:USERPROFILE ".gradle" }
+        Write-Host ""
+        Write-Host " ==========================================" -ForegroundColor Green
+        Write-Host " DEPENDENCIES PRELOADED" -ForegroundColor Green
+        Write-Host " ==========================================" -ForegroundColor Green
+        Write-Ok "Gradle cache: $GradleHome"
+        Write-Ok "Use build-offline.bat for future builds from this cache."
+        exit 0
     }
 
     $JarDirectory = Join-Path $ProjectRoot "build\libs"
